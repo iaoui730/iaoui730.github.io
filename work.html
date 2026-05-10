@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Film Photography — Xiao Hui</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: #ffffff;
+  color: #000000;
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 2rem;
+  height: 48px;
+  border-bottom: 1px solid #000;
+  background: #ffffff;
+  z-index: 99;
+}
+.nav-logo {
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: #000000;
+}
+.nav-right { display: flex; gap: 2rem; list-style: none; }
+.nav-right a {
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #000000;
+  text-decoration: none;
+  font-weight: 400;
+}
+.nav-right a:hover { opacity: 0.4; }
+
+.page { margin-top: 48px; }
+
+.year-nav {
+  position: sticky;
+  top: 48px;
+  background: #ffffff;
+  border-bottom: 1px solid #000;
+  z-index: 50;
+  display: flex;
+  align-items: stretch;
+  overflow-x: auto;
+  scrollbar-width: none;
+  height: 40px;
+}
+.year-nav::-webkit-scrollbar { display: none; }
+.year-btn {
+  flex-shrink: 0;
+  padding: 0 1.2rem;
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border: none;
+  border-right: 1px solid #ddd;
+  background: #ffffff;
+  color: #000000;
+  cursor: pointer;
+  border-radius: 0;
+  outline: none;
+  transition: background 0.1s, color 0.1s;
+}
+.year-btn:hover {
+  color: #ffffff;
+  background: #000000;
+}
+.year-btn.active {
+  color: #000000;
+  background: #ffffff;
+  border-left: 1px solid #000;
+  border-right: 1px solid #000;
+}
+
+.year-section { display: none; }
+.year-section.active { display: block; }
+
+.year-header {
+  padding: 2rem 2rem 1rem;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.year-title { font-size: 48px; font-weight: 800; letter-spacing: -0.03em; color: #000; }
+.year-count { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #aaa; }
+
+.photos-grid { display: grid; grid-template-columns: repeat(5, 1fr); }
+.photo-item {
+  border-right: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.photo-item:nth-child(5n) { border-right: none; }
+.photo-item:hover .photo-hover { opacity: 1; }
+.photo-wrap {
+  position: relative;
+  width: 100%;
+  padding-bottom: 140%;
+  background: #f5f5f5;
+  overflow: hidden;
+}
+.photo-wrap img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  -webkit-user-drag: none;
+  display: block;
+}
+.photo-overlay { position: absolute; inset: 0; background: transparent; z-index: 2; }
+.photo-hover {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.15);
+  z-index: 3;
+  opacity: 0;
+  transition: opacity 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.photo-hover span {
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #fff;
+}
+.photo-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.photo-caption {
+  padding: 0.6rem 0.75rem;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #999;
+  border-top: 1px solid #eee;
+}
+
+/* Lightbox */
+.lightbox {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.93);
+  z-index: 999;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+.lightbox.open { display: flex; }
+.lightbox-img-wrap {
+  position: relative;
+  max-width: 55vw;
+  max-height: 78vh;
+}
+.lightbox-img-wrap img {
+  max-width: 100%;
+  max-height: 78vh;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+.lightbox-overlay { position: absolute; inset: 0; z-index: 2; }
+.lightbox-caption {
+  margin-top: 1.25rem;
+  font-size: 11px;
+  color: #777;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  text-align: center;
+}
+.lightbox-close {
+  position: fixed;
+  top: 1.5rem; right: 2rem;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #555;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: 'Syne', sans-serif;
+}
+.lightbox-close:hover { color: #fff; }
+.lightbox-nav {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #555;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: 'Syne', sans-serif;
+  padding: 1rem;
+}
+.lightbox-nav:hover { color: #fff; }
+.lightbox-prev { left: 1.5rem; }
+.lightbox-next { right: 1.5rem; }
+.lightbox-counter {
+  position: fixed;
+  bottom: 2rem;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: #444;
+  text-transform: uppercase;
+}
+
+footer {
+  padding: 1rem 2rem;
+  border-top: 1px solid #000;
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #bbb;
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html">Xiao Hui</a>
+  <ul class="nav-right">
+    <li><a href="work.html">Work</a></li>
+    <li><a href="index.html#about">About</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<div class="page">
+  <div class="year-nav" id="yearNav"></div>
+  <div id="yearSections"></div>
+</div>
+
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" onclick="closeLightbox()">Close</button>
+  <button class="lightbox-nav lightbox-prev" onclick="navLightbox(-1)">Prev</button>
+  <button class="lightbox-nav lightbox-next" onclick="navLightbox(1)">Next</button>
+  <div class="lightbox-img-wrap">
+    <img id="lightboxImg" src="" alt="">
+    <div class="lightbox-overlay"></div>
+  </div>
+  <div class="lightbox-caption" id="lightboxCaption"></div>
+  <div class="lightbox-counter" id="lightboxCounter"></div>
+</div>
+
+<footer>
+  <span>© 2025 Xiao Hui</span>
+  <span>Film Photography</span>
+</footer>
+
+<script>
+// =============================================
+// HOW TO ADD YOUR PHOTOS:
+// For each year, add 5 entries in this format:
+// { src: 'images/2025/01.jpg', city: 'Tokyo' }
+// Put your images in an "images" folder next to
+// this HTML file, organized by year.
+// =============================================
+
+const data = {
+  2025: [
+    { src: '', city: 'Tokyo' },
+    { src: '', city: 'Tokyo' },
+    { src: '', city: 'Tokyo' },
+    { src: '', city: 'Tokyo' },
+    { src: '', city: 'Tokyo' },
+  ],
+  2024: [
+    { src: '', city: 'Tokyo' },
+    { src: '', city: 'Tokyo' },
+    { src: '', city: 'Tokyo' },
+    { src: '', city: 'Tokyo' },
+    { src: '', city: 'Tokyo' },
+  ],
+  2023: [
+    { src: '', city: 'Shanghai' },
+    { src: '', city: 'Shanghai' },
+    { src: '', city: 'Shanghai' },
+    { src: '', city: 'Shanghai' },
+    { src: '', city: 'Shanghai' },
+  ],
+  2022: [
+    { src: '', city: 'Shanghai' },
+    { src: '', city: 'Shanghai' },
+    { src: '', city: 'Shanghai' },
+    { src: '', city: 'Shanghai' },
+    { src: '', city: 'Shanghai' },
+  ],
+  2021: [
+    { src: '', city: 'Shanghai' },
+    { src: '', city: 'Shanghai' },
+    { src: '', city: 'Shanghai' },
+    { src: '', city: 'Shanghai' },
+    { src: '', city: 'Shanghai' },
+  ],
+  2020: [
+    { src: '', city: 'Shanghai' },
+    { src: '', city: 'Shanghai' },
+    { src: '', city: 'Shanghai' },
+    { src: '', city: 'Shanghai' },
+    { src: '', city: 'Shanghai' },
+  ],
+  2019: [
+    { src: '', city: 'Macau' },
+    { src: '', city: 'Macau' },
+    { src: '', city: 'Macau' },
+    { src: '', city: 'Macau' },
+    { src: '', city: 'Macau' },
+  ],
+  2018: [
+    { src: '', city: 'Macau' },
+    { src: '', city: 'Macau' },
+    { src: '', city: 'Macau' },
+    { src: '', city: 'Macau' },
+    { src: '', city: 'Macau' },
+  ],
+  2017: [
+    { src: '', city: 'Chongqing' },
+    { src: '', city: 'Chongqing' },
+    { src: '', city: 'Chongqing' },
+    { src: '', city: 'Chongqing' },
+    { src: '', city: 'Chongqing' },
+  ],
+  2016: [
+    { src: '', city: 'Chongqing' },
+    { src: '', city: 'Chongqing' },
+    { src: '', city: 'Chongqing' },
+    { src: '', city: 'Chongqing' },
+    { src: '', city: 'Chongqing' },
+  ],
+  2015: [
+    { src: '', city: 'Chongqing' },
+    { src: '', city: 'Chongqing' },
+    { src: '', city: 'Chongqing' },
+    { src: '', city: 'Chongqing' },
+    { src: '', city: 'Chongqing' },
+  ],
+};
+
+const years = Object.keys(data).map(Number).sort((a,b) => b - a);
+const placeholderColors = ['#e8e4de','#dedad4','#e4e0da','#dcd8d2','#e0dcd6'];
+let currentYear = years[0];
+let currentIndex = 0;
+
+function buildNav() {
+  const nav = document.getElementById('yearNav');
+  years.forEach((y, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'year-btn' + (i === 0 ? ' active' : '');
+    btn.textContent = y;
+    btn.style.cssText = 'color:#000000;background:#ffffff;';
+    btn.id = 'btn-' + y;
+    btn.onclick = () => selectYear(y);
+    btn.onmouseenter = () => { if (!btn.classList.contains('active')) { btn.style.cssText = 'color:#ffffff;background:#000000;'; } };
+    btn.onmouseleave = () => { if (!btn.classList.contains('active')) { btn.style.cssText = 'color:#000000;background:#ffffff;'; } };
+    nav.appendChild(btn);
+  });
+}
+
+function buildSections() {
+  const container = document.getElementById('yearSections');
+  years.forEach((y, yi) => {
+    const photos = data[y];
+    const section = document.createElement('div');
+    section.className = 'year-section' + (yi === 0 ? ' active' : '');
+    section.id = 'section-' + y;
+    section.innerHTML = `<div class="year-header"><div class="year-title">${y}</div><div class="year-count">${photos.length} Photos</div></div>`;
+
+    const grid = document.createElement('div');
+    grid.className = 'photos-grid';
+
+    photos.forEach((photo, i) => {
+      const item = document.createElement('div');
+      item.className = 'photo-item';
+      const imgContent = photo.src
+        ? `<img src="${photo.src}" alt="${photo.city}">`
+        : `<div class="photo-placeholder" style="background:${placeholderColors[i]}">
+             <svg width="24" height="24" viewBox="0 0 48 48" fill="none"><rect x="4" y="8" width="40" height="32" rx="2" stroke="#bbb" stroke-width="1.5"/><circle cx="17" cy="20" r="4" stroke="#bbb" stroke-width="1.5"/><path d="M4 34l10-10 7 7 6-6 13 13" stroke="#bbb" stroke-width="1.5" stroke-linejoin="round"/></svg>
+           </div>`;
+      item.innerHTML = `
+        <div class="photo-wrap">
+          ${imgContent}
+          <div class="photo-overlay"></div>
+          <div class="photo-hover"><span>View</span></div>
+        </div>
+        <div class="photo-caption">${photo.city}</div>
+      `;
+      item.onclick = () => openLightbox(y, i);
+      grid.appendChild(item);
+    });
+
+    section.appendChild(grid);
+    container.appendChild(section);
+  });
+}
+
+function selectYear(y) {
+  currentYear = y;
+  document.querySelectorAll('.year-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.year-btn').forEach(b => {
+    b.classList.remove('active');
+    b.style.cssText = 'color:#000000;background:#ffffff;';
+  });
+  document.getElementById('section-' + y).classList.add('active');
+  const btn = document.getElementById('btn-' + y);
+  btn.classList.add('active');
+  btn.style.cssText = 'color:#000000;background:#ffffff;border-left:1px solid #000;border-right:1px solid #000;';
+  window.scrollTo({ top: 96, behavior: 'smooth' });
+}
+
+function openLightbox(year, index) {
+  currentYear = year;
+  currentIndex = index;
+  updateLightbox();
+  document.getElementById('lightbox').classList.add('open');
+}
+
+function updateLightbox() {
+  const photo = data[currentYear][currentIndex];
+  const img = document.getElementById('lightboxImg');
+  img.src = photo.src || '';
+  img.style.display = photo.src ? 'block' : 'none';
+  document.getElementById('lightboxCaption').textContent = photo.city;
+  document.getElementById('lightboxCounter').textContent =
+    `${currentYear}  /  0${currentIndex + 1}  of  0${data[currentYear].length}`;
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+}
+
+function navLightbox(dir) {
+  const len = data[currentYear].length;
+  currentIndex = (currentIndex + dir + len) % len;
+  updateLightbox();
+}
+
+document.getElementById('lightbox').addEventListener('click', function(e) {
+  if (e.target === this) closeLightbox();
+});
+
+document.addEventListener('keydown', function(e) {
+  if (!document.getElementById('lightbox').classList.contains('open')) return;
+  if (e.key === 'Escape') closeLightbox();
+  if (e.key === 'ArrowRight') navLightbox(1);
+  if (e.key === 'ArrowLeft') navLightbox(-1);
+});
+
+document.addEventListener('contextmenu', e => e.preventDefault());
+
+buildNav();
+buildSections();
+</script>
+</body>
+</html>

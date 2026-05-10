@@ -12,7 +12,18 @@ nav { position: fixed; top: 0; left: 0; right: 0; display: flex; justify-content
 .nav-logo { font-weight: 800; font-size: 13px; letter-spacing: 0.15em; text-transform: uppercase; text-decoration: none; color: #000; }
 .nav-right { display: flex; gap: 2rem; list-style: none; }
 .nav-right a { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: #000; text-decoration: none; font-weight: 400; }
-.nav-right a:hover { opacity: 0.4; }
+.nav-right a:hover { opacity: 0.4; }.hamburger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; }
+.hamburger span { display: block; width: 22px; height: 1px; background: #000; transition: all 0.2s; }
+.hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(4px, 4px); }
+.hamburger.open span:nth-child(2) { opacity: 0; }
+.hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(4px, -4px); }
+@media (max-width: 600px) {
+  .hamburger { display: flex; }
+  .nav-right { display: none; position: fixed; top: 48px; left: 0; right: 0; background: #fff; border-bottom: 1px solid #000; flex-direction: column; gap: 0; padding: 0; }
+  .nav-right.open { display: flex; }
+  .nav-right li { border-bottom: 1px solid #eee; }
+  .nav-right a { display: block; padding: 1rem 2rem; font-size: 13px; }
+}
 
 .page { margin-top: 48px; }
 .page-header { border-bottom: 1px solid #000; padding: 1rem 2rem; display: flex; justify-content: space-between; }
@@ -104,11 +115,14 @@ footer { padding: 1rem 2rem; border-top: 1px solid #000; display: flex; justify-
 
 <nav>
   <a class="nav-logo" href="index.html"><span style="font-weight:800">(</span>X<span style="font-weight:800">)</span>IAO <span style="font-weight:800">(</span>H<span style="font-weight:800">)</span>UI</a>
-  <ul class="nav-right">
-    <li><a href="index.html#work">Work</a></li>
-    <li><a href="index.html#about">About</a></li>
-    <li><a href="journal.html">Journal</a></li>
-    <li><a href="index.html#contact">Contact</a></li>
+  <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <ul class="nav-right" id="navMenu">
+    <li><a href="index.html#work" onclick="closeMenu()">Work</a></li>
+    <li><a href="index.html#about" onclick="closeMenu()">About</a></li>
+    <li><a href="journal.html" onclick="closeMenu()">Journal</a></li>
+    <li><a href="index.html#contact" onclick="closeMenu()">Contact</a></li>
   </ul>
 </nav>
 
@@ -236,6 +250,13 @@ async function loadEntries() {
 }
 
 loadEntries();
-</script>
+function toggleMenu() {
+  document.getElementById('hamburger').classList.toggle('open');
+  document.getElementById('navMenu').classList.toggle('open');
+}
+function closeMenu() {
+  document.getElementById('hamburger').classList.remove('open');
+  document.getElementById('navMenu').classList.remove('open');
+}</script>
 </body>
 </html>

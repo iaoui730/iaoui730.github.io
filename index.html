@@ -237,14 +237,15 @@ footer { padding: 1rem 2rem; display: flex; justify-content: space-between; font
   <div style="font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:#aaa;margin-bottom:1.5rem;text-align:center;">Where are you from? Click to mark your visit.</div>
   <div id="vmCapsules" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;"></div>
   <div style="text-align:center;margin-top:1.5rem;">
-    <strong id="vmVisits" style="font-size:20px;font-weight:800;display:block;margin-bottom:2px;">—</strong>
-    <span style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#aaa;">visitors so far</span>
     <div id="vmThanks" style="font-size:11px;color:#aaa;margin-top:0.75rem;letter-spacing:0.05em;min-height:16px;"></div>
   </div>
 </div>
 
 <script>
-const NAMESPACE='iaoui-site-2025';
+const BIN_ID='6a006a06250b1311c32c846d';
+const API_KEY='$2a$10$mT81KEWoePC8aZ9d2U8jAu7kAIiDxfyYXJoeKHRRPfkSOC55P86W.';
+const BASE='https://api.jsonbin.io/v3/b/'+BIN_ID;
+const HEADERS={'Content-Type':'application/json','X-Master-Key':API_KEY,'X-Bin-Meta':'false'};
 const regions=[
   {id:'asia-pacific',name:'Asia Pacific',bg:'#D40000',text:'#fff'},
   {id:'europe',name:'Europe',bg:'#FFD700',text:'#111'},
@@ -253,44 +254,47 @@ const regions=[
   {id:'mea',name:'Middle East & Africa',bg:'#3D8C40',text:'#fff'},
   {id:'other',name:'Other',bg:'#111',text:'#fff'},
 ];
-let vmCounts={};regions.forEach(r=>vmCounts[r.id]=0);
+let vmData={};
 let myVote=null;
-try{myVote=localStorage.getItem('vm7_vote');}catch(e){}
-function vmMax(){return Math.max(1,...Object.values(vmCounts));}
-function vmOp(id){const c=vmCounts[id]||0;if(c===0)return 0.35;return 0.35+0.65*(c/vmMax());}
+try{myVote=localStorage.getItem('vm8_vote');}catch(e){}
+
 function vmRender(){
-  const wrap=document.getElementById('vmCapsules');wrap.innerHTML='';
+  const wrap=document.getElementById('vmCapsules');
+  wrap.innerHTML='';
   regions.forEach(r=>{
     const cap=document.createElement('div');
     const isMe=myVote===r.id;
-    cap.style.cssText=`display:flex;align-items:center;gap:10px;padding:0.6rem 1.4rem 0.6rem 1rem;border-radius:999px;cursor:pointer;background:${r.bg};opacity:${vmOp(r.id)};transition:transform 0.15s,filter 0.15s;`;
+    cap.style.cssText=`display:flex;align-items:center;gap:10px;padding:0.6rem 1.4rem 0.6rem 1rem;border-radius:999px;cursor:pointer;background:${r.bg};transition:transform 0.15s,filter 0.15s;`;
     cap.onmouseenter=()=>{cap.style.filter='brightness(0.88)';cap.style.transform='translateY(-2px)';};
     cap.onmouseleave=()=>{cap.style.filter='';cap.style.transform='';};
-    cap.innerHTML=`<div style="font-size:20px;font-weight:800;color:${r.text}">${vmCounts[r.id]||0}</div><div><div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:${r.text}">${r.name}</div>${isMe?`<div style="font-size:9px;letter-spacing:0.08em;text-transform:uppercase;opacity:0.6;color:${r.text}">you are here</div>`:''}</div>`;
+    cap.innerHTML=`<div style="font-size:20px;font-weight:800;color:${r.text}">${vmData[r.id]||0}</div><div><div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:${r.text}">${r.name}</div>${isMe?`<div style="font-size:9px;letter-spacing:0.08em;text-transform:uppercase;opacity:0.6;color:${r.text}">you are here</div>`:''}</div>`;
     cap.onclick=()=>vmVote(r.id);
     wrap.appendChild(cap);
   });
 }
+
+async function vmLoad(){
+  try{
+    const res=await fetch(BASE,{headers:HEADERS});
+    vmData=await res.json();
+  }catch(e){}
+  vmRender();
+}
+
 async function vmVote(id){
   if(myVote===id)return;
-  try{const res=await fetch(`https://api.countapi.xyz/hit/${NAMESPACE}/${id}`);const data=await res.json();vmCounts[id]=data.value||vmCounts[id]+1;}
-  catch(e){vmCounts[id]=(vmCounts[id]||0)+1;}
-  myVote=id;try{localStorage.setItem('vm7_vote',id);}catch(e){}
-  vmRender();document.getElementById('vmThanks').textContent='Marked! Thanks for visiting :)';
+  vmData[id]=(vmData[id]||0)+1;
+  vmData['total']=(vmData['total']||0)+1;
+  myVote=id;
+  try{localStorage.setItem('vm8_vote',id);}catch(e){}
+  vmRender();
+  document.getElementById('vmThanks').textContent='Marked! Thanks for visiting :)';
+  try{
+    await fetch(BASE,{method:'PUT',headers:HEADERS,body:JSON.stringify(vmData)});
+  }catch(e){}
 }
-async function vmLoad(){
-  await Promise.all(regions.map(async r=>{
-    try{const res=await fetch(`https://api.countapi.xyz/get/${NAMESPACE}/${r.id}`);const data=await res.json();vmCounts[r.id]=data.value||0;}catch(e){}
-  }));vmRender();
-}
-async function vmInitVisits(){
-  const done=localStorage.getItem('vm7_counted');
-  try{const url=done?`https://api.countapi.xyz/get/${NAMESPACE}/total-visits`:`https://api.countapi.xyz/hit/${NAMESPACE}/total-visits`;
-  const res=await fetch(url);const data=await res.json();
-  document.getElementById('vmVisits').textContent=data.value||0;
-  if(!done)localStorage.setItem('vm7_counted','1');}catch(e){document.getElementById('vmVisits').textContent='—';}
-}
-vmRender();vmLoad();vmInitVisits();
+
+vmLoad();
 </script>
 <footer>
   <span>© 2025 XIAO HUI</span>

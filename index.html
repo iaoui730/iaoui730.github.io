@@ -260,10 +260,9 @@ footer { padding: 1rem 2rem; display: flex; justify-content: space-between; font
 </div>
 
 <script>
-const BIN_ID='6a006a06250b1311c32c846d';
-const API_KEY='$2a$10$mT81KEWoePC8aZ9d2U8jAu7kAIiDxfyYXJoeKHRRPfkSOC55P86W.';
-const BASE='https://api.jsonbin.io/v3/b/'+BIN_ID;
-const HEADERS={'Content-Type':'application/json','X-Master-Key':API_KEY,'X-Bin-Meta':'false'};
+const SUPABASE_URL='https://locehayfyfwpdyrabiqm.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxvY2VoYXlmeWZ3cGR5cmFiaXFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0MTQzMTcsImV4cCI6MjA5Mzk5MDMxN30.RKAUOEWE5xFl1z57Q0QN9_sIiirTGsSMVLmgygxUL4M';
+const HEADERS={'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY};
 const regions=[
   {id:'asia-pacific',name:'Asia Pacific',bg:'#D40000',text:'#fff'},
   {id:'europe',name:'Europe',bg:'#FFD700',text:'#111'},
@@ -274,7 +273,7 @@ const regions=[
 ];
 let vmData={};
 let myVote=null;
-try{myVote=localStorage.getItem('vm8_vote');}catch(e){}
+try{myVote=localStorage.getItem('vm9_vote');}catch(e){}
 
 function vmRender(){
   const wrap=document.getElementById('vmCapsules');
@@ -293,8 +292,9 @@ function vmRender(){
 
 async function vmLoad(){
   try{
-    const res=await fetch(BASE,{headers:HEADERS});
-    vmData=await res.json();
+    const res=await fetch(`${SUPABASE_URL}/rest/v1/visitors?select=region,count`,{headers:HEADERS});
+    const rows=await res.json();
+    rows.forEach(r=>vmData[r.region]=r.count);
   }catch(e){}
   vmRender();
 }
@@ -302,13 +302,16 @@ async function vmLoad(){
 async function vmVote(id){
   if(myVote===id)return;
   vmData[id]=(vmData[id]||0)+1;
-  vmData['total']=(vmData['total']||0)+1;
   myVote=id;
-  try{localStorage.setItem('vm8_vote',id);}catch(e){}
+  try{localStorage.setItem('vm9_vote',id);}catch(e){}
   vmRender();
   document.getElementById('vmThanks').textContent='Marked! Thanks for visiting :)';
   try{
-    await fetch(BASE,{method:'PUT',headers:HEADERS,body:JSON.stringify(vmData)});
+    await fetch(`${SUPABASE_URL}/rest/v1/visitors?region=eq.${id}`,{
+      method:'PATCH',
+      headers:{...HEADERS,'Prefer':'return=minimal'},
+      body:JSON.stringify({count:vmData[id]})
+    });
   }catch(e){}
 }
 

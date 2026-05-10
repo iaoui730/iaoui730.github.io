@@ -14,8 +14,17 @@ nav { position: fixed; top: 0; left: 0; right: 0; display: flex; justify-content
 .nav-right a { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: #000; text-decoration: none; font-weight: 400; }
 .nav-right a:hover { opacity: 0.4; }
 
-.hero { margin-top: 48px; border-bottom: 1px solid #000; display: grid; grid-template-columns: 1fr 1fr; min-height: calc(100vh - 48px); }
-.hero-left { border-right: 1px solid #000; padding: 3rem 2rem; display: flex; flex-direction: column; justify-content: space-between; }
+.hero { margin-top: 48px; border-bottom: 1px solid #000; display: flex; flex-direction: column; }
+<div class="hero-left" style="padding:0;overflow:hidden;position:relative;height:33vh;flex-shrink:0;border-bottom:1px solid #000;">
+  <video autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;filter:grayscale(100%) contrast(1.1);">
+    <source src="v1.mp4" type="video/mp4">
+  </video>
+  <div style="position:absolute;inset:0;background-image:url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noise%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.9%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noise)%22 opacity=%220.08%22/%3E%3C/svg%3E');pointer-events:none;"></div>
+  <div style="position:absolute;bottom:1.5rem;left:2rem;">
+    <div style="font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(0,0,0,0.5);margin-bottom:0.5rem;">iaoui.cc / Tokyo, Japan</div>
+    <div style="font-weight:800;font-size:clamp(40px,8vw,100px);line-height:0.88;letter-spacing:-0.02em;text-transform:uppercase;color:#000;">iaoui</div>
+  </div>
+</div>
 .hero-tag { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #999; }
 .hero-name { font-weight: 800; font-size: clamp(60px, 11vw, 140px); line-height: 0.88; letter-spacing: -0.02em; text-transform: uppercase; color: #000; animation: fadeIn 0.6s ease 0.1s both; }
 .hero-right { display: flex; flex-direction: column; }
@@ -330,9 +339,9 @@ vmLoad();
 // ratio: 占位符比例，真实图片上传后自动撑开
 // =============================================
 const photos = [
-  { src: 'main2.jpg', city: 'Berlin', ratio: '3/4' },
-  { src: 'main4.jpg', city: 'Berlin', ratio: '4/5' },
-  { src: 'main5.jpg', city: 'Dalian', ratio: '3/4' },
+  { src: 'main2.png', city: 'Berlin', ratio: '3/4' },
+  { src: 'main4.png', city: 'Berlin', ratio: '4/5' },
+  { src: 'main5.png', city: 'Dalian', ratio: '3/4' },
 ];
 
 const colors = ['#e8e4de','#dedad4','#e4e0da','#dcd8d2','#e0dcd6','#e6e2dc','#ddd9d3','#e2ded8'];

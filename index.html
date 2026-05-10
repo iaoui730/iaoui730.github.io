@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Xiao Hui</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #ffffff; color: #000000; font-family: 'Syne', sans-serif; font-size: 13px; user-select: none; -webkit-user-select: none; }
+nav { position: fixed; top: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: center; padding: 0 2rem; height: 48px; border-bottom: 1px solid #000; background: #fff; z-index: 99; }
+.nav-logo { font-weight: 800; font-size: 13px; letter-spacing: 0.15em; text-transform: uppercase; text-decoration: none; color: #000; }
+.nav-right { display: flex; gap: 2rem; list-style: none; }
+.nav-right a { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: #000; text-decoration: none; font-weight: 400; }
+.nav-right a:hover { opacity: 0.4; }
+.hamburger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; }
+.hamburger span { display: block; width: 22px; height: 1px; background: #000; transition: all 0.2s; }
+.hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(4px, 4px); }
+.hamburger.open span:nth-child(2) { opacity: 0; }
+.hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(4px, -4px); }
+@media (max-width: 600px) {
+  .hamburger { display: flex; }
+  .nav-right { display: none; position: fixed; top: 48px; left: 0; right: 0; background: #fff; border-bottom: 1px solid #000; flex-direction: column; gap: 0; padding: 0; }
+  .nav-right.open { display: flex; }
+  .nav-right li { border-bottom: 1px solid #eee; }
+  .nav-right a { display: block; padding: 1rem 2rem; font-size: 13px; }
+}
+
+.hero { margin-top: 48px; border-bottom: 1px solid #000; display: flex; flex-direction: column; }
+.hero-right { display: flex; flex-direction: column; }
+.hero-right-top { flex: 1; border-bottom: 1px solid #000; background: #f5f5f5; min-height: 400px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.hero-img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+.hero-right-bottom { padding: 2rem; display: flex; justify-content: space-between; align-items: flex-end; }
+.hero-status { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: #aaa; }
+.hero-cta { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: #000; text-decoration: none; border-bottom: 1px solid #000; padding-bottom: 2px; cursor: pointer; background: none; border-top: none; border-left: none; border-right: none; font-family: 'Syne', sans-serif; font-weight: 400; }
+
+.section-header { border-top: 1px solid #000; border-bottom: 1px solid #000; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; margin-top: -1px; }
+.section-header-title { font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase; font-weight: 400; }
+.section-header-count { font-size: 10px; color: #aaa; letter-spacing: 0.1em; }
+
+.work-list { border-bottom: 1px solid #000; }
+.work-row { display: grid; grid-template-columns: 60px 1fr 130px 40px; align-items: center; padding: 1.4rem 2rem; border-bottom: 1px solid #eee; cursor: pointer; transition: background 0.15s; }
+.work-row:last-of-type { border-bottom: none; }
+.work-row:hover { background: #f8f8f8; }
+.work-num { font-size: 10px; color: #bbb; letter-spacing: 0.1em; }
+.work-row-title { font-size: 18px; font-weight: 700; letter-spacing: -0.01em; text-transform: uppercase; }
+.work-row-year { font-size: 11px; color: #aaa; letter-spacing: 0.05em; }
+.work-row-toggle { font-size: 20px; color: #bbb; text-align: right; transition: transform 0.3s; line-height: 1; font-weight: 300; }
+.work-row.open .work-row-toggle { transform: rotate(45deg); color: #000; }
+.work-row.open { background: #f8f8f8; border-bottom: none; }
+.work-content { max-height: 0; overflow: hidden; transition: max-height 0.5s ease; background: #fafafa; border-bottom: 1px solid #eee; }
+.work-content.open { max-height: 8000px; }
+
+.editorial { padding: 2rem; display: flex; flex-direction: column; gap: 2rem; }
+.row { display: flex; gap: 2rem; align-items: flex-start; }
+.cell { cursor: pointer; position: relative; }
+.cell:hover img { opacity: 0.9; }
+.cell img { width: 100%; height: auto; display: block; pointer-events: none; -webkit-user-drag: none; transition: opacity 0.2s; }
+.cell-placeholder { width: 100%; display: block; }
+.cell-caption { margin-top: 0.4rem; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #aaa; }
+.coming-soon { padding: 3rem 2rem; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: #ccc; }
+
+.about-section { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid #000; }
+.about-left { border-right: 1px solid #000; padding: 3rem 2rem; }
+.about-big { font-weight: 800; font-size: clamp(44px, 6vw, 88px); line-height: 0.9; text-transform: uppercase; margin-bottom: 2rem; letter-spacing: -0.02em; }
+.about-text { font-size: 13px; line-height: 2; color: #444; font-weight: 400; max-width: 360px; }
+.about-text p + p { margin-top: 1.2rem; }
+.about-right { padding: 3rem 2rem; display: flex; flex-direction: column; justify-content: space-between; }
+.stat-block { margin-bottom: 2rem; }
+.stat-label { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #aaa; margin-bottom: 0.25rem; }
+.stat-val { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; text-transform: uppercase; }
+.cities { display: flex; flex-direction: column; gap: 0.3rem; }
+.city-row { display: flex; align-items: center; gap: 0.75rem; font-size: 15px; font-weight: 700; text-transform: uppercase; letter-spacing: -0.01em; }
+.city-row.current { color: #000; }
+.city-row.past { color: #ccc; }
+.city-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.city-row.current .city-dot { background: #000; }
+.city-row.past .city-dot { background: #ddd; }
+
+.contact-section { padding: 4rem 2rem; display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid #000; }
+.contact-big { font-weight: 800; font-size: clamp(48px, 8vw, 100px); line-height: 0.9; text-transform: uppercase; letter-spacing: -0.02em; }
+.contact-right { text-align: right; }
+.contact-right a { display: block; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: #aaa; text-decoration: none; margin-bottom: 0.6rem; transition: color 0.15s; }
+.contact-right a:hover { color: #000; }
+
+footer { padding: 1rem 2rem; display: flex; justify-content: space-between; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: #bbb; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+@media (max-width: 600px) {
+  .hero-left { min-height: 75vw; }
+  .editorial { padding: 1rem; gap: 1rem; }
+  .row { flex-direction: column; gap: 1rem; }
+  .cell { width: 100% !important; }
+  .about-section { grid-template-columns: 1fr; }
+  .about-left { border-right: none; border-bottom: 1px solid #eee; }
+  .contact-section { flex-direction: column; gap: 2rem; align-items: flex-start; }
+  .work-row { grid-template-columns: 40px 1fr 80px 30px; padding: 1.2rem 1rem; }
+}
+
+.lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.93); z-index: 999; align-items: center; justify-content: center; flex-direction: column; }
+.lightbox.open { display: flex; }
+.lightbox-img-wrap { position: relative; max-width: 90vw; max-height: 82vh; }
+.lightbox-img-wrap img { max-width: 100%; max-height: 82vh; object-fit: contain; display: block; pointer-events: none; -webkit-user-drag: none; }
+.lightbox-overlay { position: absolute; inset: 0; z-index: 2; }
+.lightbox-caption { margin-top: 1.25rem; font-size: 11px; color: #777; letter-spacing: 0.15em; text-transform: uppercase; text-align: center; }
+.lightbox-close { position: fixed; top: 1.5rem; right: 1.5rem; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: #555; cursor: pointer; background: none; border: none; font-family: 'Syne', sans-serif; }
+.lightbox-close:hover { color: #fff; }
+.lightbox-nav { position: fixed; top: 50%; transform: translateY(-50%); font-size: 11px; color: #555; cursor: pointer; background: none; border: none; font-family: 'Syne', sans-serif; padding: 1rem; }
+.lightbox-nav:hover { color: #fff; }
+.lightbox-prev { left: 0.5rem; }
+.lightbox-next { right: 0.5rem; }
+.lightbox-counter { position: fixed; bottom: 2rem; font-size: 10px; letter-spacing: 0.2em; color: #444; text-transform: uppercase; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html"><span style="font-weight:800">(</span>X<span style="font-weight:800">)</span>IAO <span style="font-weight:800">(</span>H<span style="font-weight:800">)</span>UI</a>
+  <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <ul class="nav-right" id="navMenu">
+    <li><a href="#work" onclick="closeMenu()">Work</a></li>
+    <li><a href="#about" onclick="closeMenu()">About</a></li>
+    <li><a href="journal.html" onclick="closeMenu()">Journal</a></li>
+    <li><a href="#contact" onclick="closeMenu()">Contact</a></li>
+  </ul>
+</nav>
+
+<div class="hero">
+  <div class="hero-left" style="padding:0;overflow:hidden;position:relative;height:33vh;flex-shrink:0;border-bottom:1px solid #000;">
+    <video autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;filter:grayscale(100%) contrast(1.1);">
+      <source src="v1.mp4" type="video/mp4">
+    </video>
+    <div style="position:absolute;inset:0;background-image:url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noise%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.9%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noise)%22 opacity=%220.08%22/%3E%3C/svg%3E');pointer-events:none;"></div>
+    <div style="position:absolute;bottom:1.5rem;left:2rem;">
+      <div style="font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(0,0,0,0.5);margin-bottom:0.5rem;">iaoui.cc / Tokyo, Japan</div>
+      <div style="font-weight:800;font-size:clamp(40px,8vw,100px);line-height:0.88;letter-spacing:-0.02em;text-transform:uppercase;color:#000;">iaoui</div>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-right-top">
+      <img class="hero-img" src="berlin2.png" alt="Xiao Hui">
+    </div>
+    <div class="hero-right-bottom">
+      <div class="hero-status">Based in Tokyo</div>
+      <button class="hero-cta" onclick="document.getElementById('work').scrollIntoView({behavior:'smooth'})">View Work</button>
+    </div>
+  </div>
+</div>
+
+<div class="section-header" id="work">
+  <div class="section-header-title">Work</div>
+  <div class="section-header-count">004 Series</div>
+</div>
+
+<div class="work-list">
+  <div class="work-row" id="row-film" onclick="toggleWork('film')">
+    <div class="work-num">001</div>
+    <div class="work-row-title">Film Photography</div>
+    <div class="work-row-year">2015 to present</div>
+    <div class="work-row-toggle">+</div>
+  </div>
+  <div class="work-content" id="content-film">
+    <div class="editorial" id="editorial"></div>
+  </div>
+
+  <div class="work-row" id="row-music" onclick="toggleWork('music')">
+    <div class="work-num">002</div>
+    <div class="work-row-title">Music</div>
+    <div class="work-row-year">2019 to present</div>
+    <div class="work-row-toggle">+</div>
+  </div>
+  <div class="work-content" id="content-music">
+    <div class="coming-soon">Coming soon</div>
+  </div>
+
+  <div class="work-row" id="row-documentary" onclick="toggleWork('documentary')">
+    <div class="work-num">003</div>
+    <div class="work-row-title">Documentary</div>
+    <div class="work-row-year">2020 to 2021</div>
+    <div class="work-row-toggle">+</div>
+  </div>
+  <div class="work-content" id="content-documentary">
+    <div class="coming-soon">Coming soon</div>
+  </div>
+
+  <div class="work-row" id="row-shortfilm" onclick="toggleWork('shortfilm')">
+    <div class="work-num">004</div>
+    <div class="work-row-title">Short Film</div>
+    <div class="work-row-year">Upcoming</div>
+    <div class="work-row-toggle">+</div>
+  </div>
+  <div class="work-content" id="content-shortfilm">
+    <div class="coming-soon">Coming soon</div>
+  </div>
+</div>
+
+<div class="section-header" id="about">
+  <div class="section-header-title">About</div>
+</div>
+
+<div class="about-section">
+  <div class="about-left">
+    <div class="about-big">about<br>this person</div>
+    <div class="about-text">
+      <p>I walk around a lot, mostly to catch interesting moments. I started shooting film photography when rolls were still $2. At university in Macau I got into music production and made it to the finals of a small electronic music competition.</p>
+      <p>During the pandemic I worked on documentary production and filming in Shanghai. Currently based in Tokyo.</p>
+    </div>
+  </div>
+  <div class="about-right">
+    <div>
+      <div class="stat-block">
+        <div class="stat-label">Cities</div>
+        <div class="cities">
+          <div class="city-row past"><span class="city-dot"></span>Chongqing</div>
+          <div class="city-row past"><span class="city-dot"></span>Macau</div>
+          <div class="city-row past"><span class="city-dot"></span>Shanghai</div>
+          <div class="city-row current"><span class="city-dot"></span>Tokyo</div>
+        </div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-label">Languages</div>
+        <div class="stat-val">CN EN JP</div>
+      </div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-label">Next</div>
+      <div style="font-size:15px;font-weight:400;color:#555;line-height:1.8;">Make a short film just like A24 :U</div>
+    </div>
+  </div>
+</div>
+
+<div class="section-header" id="contact">
+  <div class="section-header-title">Contact</div>
+</div>
+
+<div class="contact-section">
+  <div class="contact-big">Let's<br>Talk</div>
+  <div class="contact-right">
+    <a href="https://instagram.com/iaoui" target="_blank">Instagram</a>
+    <a href="https://soundcloud.com/iao-ui" target="_blank">SoundCloud</a>
+    <a href="mailto:hello@iaoui.cc">hello@iaoui.cc</a>
+  </div>
+</div>
+
+<!-- Visitor capsules -->
+<div style="padding:3rem 2rem;border-top:1px solid #000;border-bottom:1px solid #000;">
+  <div style="font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:#aaa;margin-bottom:1.5rem;text-align:center;">Where are you from? Click to mark your visit.</div>
+  <div id="vmCapsules" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;"></div>
+  <div style="text-align:center;margin-top:1.5rem;">
+    <div id="vmThanks" style="font-size:11px;color:#aaa;margin-top:0.75rem;letter-spacing:0.05em;min-height:16px;"></div>
+  </div>
+</div>
+
+<!-- Message board -->
+<div style="border-top:1px solid #000;padding:3rem 2rem;position:relative;overflow:hidden;min-height:300px;" id="messageSection">
+  <div style="font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:#aaa;margin-bottom:1.5rem;text-align:center;">Leave a message</div>
+  <div id="floatingBoard" style="position:relative;width:100%;min-height:200px;margin-bottom:2rem;"></div>
+  <div style="max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:0.75rem;">
+    <textarea id="msgText" placeholder="Say something..." style="width:100%;border:1px solid #eee;padding:0.75rem 1rem;font-family:'Syne',sans-serif;font-size:12px;outline:none;resize:none;height:80px;line-height:1.8;border-radius:0;user-select:text;-webkit-user-select:text;"></textarea>
+    <input id="msgNickname" placeholder="Your nickname (optional)..." style="border:1px solid #eee;padding:0.6rem 1rem;font-family:'Syne',sans-serif;font-size:11px;outline:none;border-radius:0;color:#555;background:#fff;width:100%;user-select:text;-webkit-user-select:text;">
+    <div style="display:flex;gap:0.75rem;">
+      <button onclick="sendMessage(true)" style="flex:1;background:#000;color:#fff;border:none;padding:0.6rem;font-family:'Syne',sans-serif;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;">Show publicly</button>
+      <button onclick="sendMessage(false)" style="flex:1;background:#fff;color:#000;border:1px solid #000;padding:0.6rem;font-family:'Syne',sans-serif;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;">Send privately</button>
+    </div>
+    <div id="msgStatus" style="font-size:11px;color:#aaa;text-align:center;min-height:16px;"></div>
+  </div>
+</div>
+
+<footer>
+  <span>© 2025 XIAO HUI</span>
+  <span>Tokyo</span>
+</footer>
+
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" onclick="closeLightbox()">Close</button>
+  <button class="lightbox-nav lightbox-prev" onclick="navLightbox(-1)">Prev</button>
+  <button class="lightbox-nav lightbox-next" onclick="navLightbox(1)">Next</button>
+  <div class="lightbox-img-wrap">
+    <img id="lightboxImg" src="" alt="">
+    <div class="lightbox-overlay"></div>
+  </div>
+  <div class="lightbox-caption" id="lightboxCaption"></div>
+  <div class="lightbox-counter" id="lightboxCounter"></div>
+</div>
+
+<script>
+// =============================================
+// 照片列表 — 改这里添加/删除照片
+// =============================================
+const photos = [
+  { src: 'main2.png', city: 'Berlin', ratio: '3/4' },
+  { src: 'main4.png', city: 'Berlin', ratio: '4/5' },
+  { src: 'main5.png', city: 'Dalian', ratio: '3/4' },
+];
+
+const colors = ['#e8e4de','#dedad4','#e4e0da','#dcd8d2','#e0dcd6','#e6e2dc','#ddd9d3','#e2ded8'];
+const patterns = [
+  ['100%'],['58%','38%'],['38%','58%'],['48%','48%'],
+  ['100%'],['65%','31%'],['31%','65%'],['48%','48%'],
+];
+
+const SUPABASE_URL='https://locehayfyfwpdyrabiqm.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxvY2VoYXlmeWZ3cGR5cmFiaXFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0MTQzMTcsImV4cCI6MjA5Mzk5MDMxN30.RKAUOEWE5xFl1z57Q0QN9_sIiirTGsSMVLmgygxUL4M';
+const HEADERS={'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY};
+
+// Visitor capsules
+const regions=[
+  {id:'asia-pacific',name:'Asia Pacific',bg:'#D40000',text:'#fff'},
+  {id:'europe',name:'Europe',bg:'#FFD700',text:'#111'},
+  {id:'north-america',name:'North America',bg:'#0044CC',text:'#fff'},
+  {id:'latin-america',name:'Latin America',bg:'#E8477A',text:'#fff'},
+  {id:'mea',name:'Middle East & Africa',bg:'#3D8C40',text:'#fff'},
+  {id:'other',name:'Other',bg:'#111',text:'#fff'},
+];
+let vmData={};
+let myVote=null;
+try{myVote=localStorage.getItem('vm9_vote');}catch(e){}
+
+function vmRender(){
+  const wrap=document.getElementById('vmCapsules');
+  wrap.innerHTML='';
+  regions.forEach(r=>{
+    const cap=document.createElement('div');
+    const isMe=myVote===r.id;
+    cap.style.cssText=`display:flex;align-items:center;gap:10px;padding:0.6rem 1.4rem 0.6rem 1rem;border-radius:999px;cursor:pointer;background:${r.bg};transition:transform 0.15s,filter 0.15s;`;
+    cap.onmouseenter=()=>{cap.style.filter='brightness(0.88)';cap.style.transform='translateY(-2px)';};
+    cap.onmouseleave=()=>{cap.style.filter='';cap.style.transform='';};
+    cap.innerHTML=`<div style="font-size:20px;font-weight:800;color:${r.text}">${vmData[r.id]||0}</div><div><div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:${r.text}">${r.name}</div>${isMe?`<div style="font-size:9px;letter-spacing:0.08em;text-transform:uppercase;opacity:0.6;color:${r.text}">you are here</div>`:''}</div>`;
+    cap.onclick=()=>vmVote(r.id);
+    wrap.appendChild(cap);
+  });
+}
+
+async function vmLoad(){
+  try{
+    const res=await fetch(`${SUPABASE_URL}/rest/v1/visitors?select=region,count`,{headers:HEADERS});
+    const rows=await res.json();
+    rows.forEach(r=>vmData[r.region]=r.count);
+  }catch(e){}
+  vmRender();
+}
+
+async function vmVote(id){
+  if(myVote===id)return;
+  vmData[id]=(vmData[id]||0)+1;
+  myVote=id;
+  try{localStorage.setItem('vm9_vote',id);}catch(e){}
+  vmRender();
+  document.getElementById('vmThanks').textContent='Marked! Thanks for visiting :)';
+  try{
+    await fetch(`${SUPABASE_URL}/rest/v1/visitors?region=eq.${id}`,{
+      method:'PATCH',
+      headers:{...HEADERS,'Prefer':'return=minimal'},
+      body:JSON.stringify({count:vmData[id]})
+    });
+  }catch(e){}
+}
+
+// Message board
+function createFloatingMsg(msg){
+  const board=document.getElementById('floatingBoard');
+  const bw=board.offsetWidth||600;
+  const el=document.createElement('div');
+  el.style.cssText='position:absolute;background:#fff;border:1px solid #000;padding:0.5rem 0.75rem;font-family:\'Syne\',sans-serif;font-size:11px;line-height:1.6;max-width:180px;cursor:default;user-select:none;box-shadow:2px 2px 0 #000;';
+  const nickname=msg.region?`<div style="font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:#aaa;margin-bottom:3px;">${msg.region}</div>`:'';
+  el.innerHTML=`${nickname}<div>${msg.content}</div>`;
+  const x=Math.random()*(bw-200);
+  el.style.left=Math.max(0,x)+'px';
+  el.style.top=Math.random()*100+'px';
+  el.style.transform=`rotate(${(Math.random()-0.5)*6}deg)`;
+  let vx=(Math.random()-0.5)*0.4;
+  let vy=(Math.random()-0.5)*0.4;
+  let px=parseFloat(el.style.left);
+  let py=parseFloat(el.style.top);
+  function drift(){
+    const b=document.getElementById('floatingBoard');
+    if(!b)return;
+    const bw2=b.offsetWidth;
+    const bh2=b.offsetHeight;
+    const ew=el.offsetWidth||160;
+    const eh=el.offsetHeight||60;
+    px+=vx;py+=vy;
+    if(px<0){px=0;vx*=-1;}
+    if(px>bw2-ew){px=bw2-ew;vx*=-1;}
+    if(py<0){py=0;vy*=-1;}
+    if(py>bh2-eh){py=bh2-eh;vy*=-1;}
+    el.style.left=px+'px';
+    el.style.top=py+'px';
+    requestAnimationFrame(drift);
+  }
+  board.appendChild(el);
+  const count=board.children.length;
+  board.style.height=Math.max(220,count*40+100)+'px';
+  requestAnimationFrame(drift);
+}
+
+async function loadMessages(){
+  try{
+    const res=await fetch(`${SUPABASE_URL}/rest/v1/messages?is_public=eq.true&order=created_at.desc&limit=20`,{headers:HEADERS});
+    const msgs=await res.json();
+    msgs.forEach(m=>createFloatingMsg(m));
+  }catch(e){}
+}
+
+async function sendMessage(isPublic){
+  const text=document.getElementById('msgText').value.trim();
+  const nickname=document.getElementById('msgNickname').value.trim();
+  const status=document.getElementById('msgStatus');
+  if(!text){status.textContent='Please write something.';return;}
+  status.textContent='Sending...';
+  try{
+    const res=await fetch(`${SUPABASE_URL}/rest/v1/messages`,{
+      method:'POST',
+      headers:{...HEADERS,'Prefer':'return=minimal'},
+      body:JSON.stringify({content:text,region:nickname||'Anonymous',is_public:isPublic})
+    });
+    if(res.ok){
+      status.textContent=isPublic?'Posted!':'Sent privately. Only Xiao Hui will see it.';
+      document.getElementById('msgText').value='';
+      document.getElementById('msgNickname').value='';
+      if(isPublic)loadMessages();
+      setTimeout(()=>status.textContent='',4000);
+    }else{status.textContent='Failed.';}
+  }catch(e){status.textContent='Error.';}
+}
+
+// Photo grid
+let currentIndex=0;
+
+function buildGrid(){
+  const editorial=document.getElementById('editorial');
+  let pi=0,patternIndex=0;
+  while(pi<photos.length){
+    const pattern=patterns[patternIndex%patterns.length];
+    const slots=Math.min(pattern.length,photos.length-pi);
+    const row=document.createElement('div');
+    row.className='row';
+    for(let s=0;s<slots;s++){
+      const photo=photos[pi];
+      const globalIndex=pi;
+      const cell=document.createElement('div');
+      cell.className='cell';
+      cell.style.width=pattern[s];
+      if(photo.src){
+        const img=document.createElement('img');
+        img.src=photo.src;img.alt=photo.city;
+        cell.appendChild(img);
+      }else{
+        const ph=document.createElement('div');
+        ph.className='cell-placeholder';
+        ph.style.cssText=`background:${colors[pi%colors.length]};aspect-ratio:${photo.ratio};`;
+        cell.appendChild(ph);
+      }
+      const caption=document.createElement('div');
+      caption.className='cell-caption';
+      caption.textContent=photo.city;
+      cell.appendChild(caption);
+      cell.onclick=()=>openLightbox(globalIndex);
+      row.appendChild(cell);
+      pi++;
+    }
+    editorial.appendChild(row);
+    patternIndex++;
+  }
+}
+
+function toggleWork(id){
+  const row=document.getElementById('row-'+id);
+  const content=document.getElementById('content-'+id);
+  const isOpen=row.classList.contains('open');
+  row.classList.toggle('open',!isOpen);
+  content.classList.toggle('open',!isOpen);
+}
+
+function openLightbox(index){
+  currentIndex=index;
+  updateLightbox();
+  document.getElementById('lightbox').classList.add('open');
+}
+function updateLightbox(){
+  const photo=photos[currentIndex];
+  const img=document.getElementById('lightboxImg');
+  img.src=photo.src||'';
+  img.style.display=photo.src?'block':'none';
+  document.getElementById('lightboxCaption').textContent=photo.city;
+  document.getElementById('lightboxCounter').textContent=`${currentIndex+1} of ${photos.length}`;
+}
+function closeLightbox(){document.getElementById('lightbox').classList.remove('open');}
+function navLightbox(dir){
+  currentIndex=(currentIndex+dir+photos.length)%photos.length;
+  updateLightbox();
+}
+document.getElementById('lightbox').addEventListener('click',function(e){if(e.target===this)closeLightbox();});
+document.addEventListener('keydown',function(e){
+  if(!document.getElementById('lightbox').classList.contains('open'))return;
+  if(e.key==='Escape')closeLightbox();
+  if(e.key==='ArrowRight')navLightbox(1);
+  if(e.key==='ArrowLeft')navLightbox(-1);
+});
+document.addEventListener('contextmenu',e=>e.preventDefault());
+
+function toggleMenu(){
+  document.getElementById('hamburger').classList.toggle('open');
+  document.getElementById('navMenu').classList.toggle('open');
+}
+function closeMenu(){
+  document.getElementById('hamburger').classList.remove('open');
+  document.getElementById('navMenu').classList.remove('open');
+}
+
+buildGrid();
+vmLoad();
+loadMessages();
+</script>
+</body>
+</html>

@@ -122,11 +122,14 @@ footer { padding: 1rem 2rem; display: flex; justify-content: space-between; font
 
 <nav>
   <a class="nav-logo" href="index.html"><span style="font-weight:800">(</span>X<span style="font-weight:800">)</span>IAO <span style="font-weight:800">(</span>H<span style="font-weight:800">)</span>UI</a>
-  <ul class="nav-right">
-    <li><a href="#work">Work</a></li>
-    <li><a href="#about">About</a></li>
-    <li><a href="journal.html">Journal</a></li>
-    <li><a href="#contact">Contact</a></li>
+  <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <ul class="nav-right" id="navMenu">
+    <li><a href="#work" onclick="closeMenu()">Work</a></li>
+    <li><a href="#about" onclick="closeMenu()">About</a></li>
+    <li><a href="journal.html" onclick="closeMenu()">Journal</a></li>
+    <li><a href="#contact" onclick="closeMenu()">Contact</a></li>
   </ul>
 </nav>
 

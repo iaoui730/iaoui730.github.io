@@ -140,6 +140,140 @@ footer { padding: 1rem 2rem; border-top: 1px solid #000; display: flex; justify-
   <span>Tokyo</span>
 </footer>
 
+  <div style="border-top:1px solid #000;padding:3rem 2rem;position:relative;overflow:hidden;min-height:300px;" id="messageSection">
+  <div style="font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:#aaa;margin-bottom:1.5rem;text-align:center;">Leave a message</div>
+
+  <!-- Floating messages -->
+  <div id="floatingBoard" style="position:relative;width:100%;min-height:200px;margin-bottom:2rem;"></div>
+
+  <!-- Message form -->
+  <div style="max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:0.75rem;">
+    <textarea id="msgText" placeholder="Say something..." style="width:100%;border:1px solid #eee;padding:0.75rem 1rem;font-family:'Syne',sans-serif;font-size:12px;outline:none;resize:none;height:80px;line-height:1.8;border-radius:0;"></textarea>
+    <select id="msgRegion" style="border:1px solid #eee;padding:0.6rem 1rem;font-family:'Syne',sans-serif;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;outline:none;border-radius:0;color:#555;background:#fff;">
+      <option value="">Where are you from?</option>
+      <option value="asia-pacific">Asia Pacific</option>
+      <option value="europe">Europe</option>
+      <option value="north-america">North America</option>
+      <option value="latin-america">Latin America</option>
+      <option value="mea">Middle East & Africa</option>
+      <option value="other">Other</option>
+    </select>
+    <div style="display:flex;gap:0.75rem;">
+      <button onclick="sendMessage(true)" style="flex:1;background:#000;color:#fff;border:none;padding:0.6rem;font-family:'Syne',sans-serif;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;">Show publicly</button>
+      <button onclick="sendMessage(false)" style="flex:1;background:#fff;color:#000;border:1px solid #000;padding:0.6rem;font-family:'Syne',sans-serif;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;">Send privately</button>
+    </div>
+    <div id="msgStatus" style="font-size:11px;color:#aaa;text-align:center;min-height:16px;"></div>
+  </div>
+</div>
+
+<script>
+const SB_URL='https://locehayfyfwpdyrabiqm.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxvY2VoYXlmeWZ3cGR5cmFiaXFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0MTQzMTcsImV4cCI6MjA5Mzk5MDMxN30.RKAUOEWE5xFl1z57Q0QN9_sIiirTGsSMVLmgygxUL4M';
+const SB_H={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'};
+
+const REGION_NAMES={'asia-pacific':'Asia Pacific','europe':'Europe','north-america':'North America','latin-america':'Latin America','mea':'Middle East & Africa','other':'Other'};
+
+function createFloatingMsg(msg) {
+  const board = document.getElementById('floatingBoard');
+  const bw = board.offsetWidth || 600;
+  const bh = Math.max(board.offsetHeight, 200);
+
+  const el = document.createElement('div');
+  el.style.cssText = `
+    position:absolute;
+    background:#fff;
+    border:1px solid #000;
+    padding:0.5rem 0.75rem;
+    font-family:'Syne',sans-serif;
+    font-size:11px;
+    line-height:1.6;
+    max-width:180px;
+    cursor:default;
+    user-select:none;
+    box-shadow:2px 2px 0 #000;
+  `;
+
+  const region = msg.region ? `<div style="font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:#aaa;margin-bottom:3px;">${REGION_NAMES[msg.region]||msg.region}</div>` : '';
+  el.innerHTML = `${region}<div>${msg.content}</div>`;
+
+  const x = Math.random() * (bw - 200);
+  const y = Math.random() * Math.max(bh - 80, 20);
+  el.style.left = Math.max(0, x) + 'px';
+  el.style.top = Math.max(0, y) + 'px';
+
+  // Random slight rotation
+  const rot = (Math.random() - 0.5) * 6;
+  el.style.transform = `rotate(${rot}deg)`;
+
+  // Drift animation
+  let vx = (Math.random() - 0.5) * 0.4;
+  let vy = (Math.random() - 0.5) * 0.4;
+  let px = parseFloat(el.style.left);
+  let py = parseFloat(el.style.top);
+
+  function drift() {
+    const b = document.getElementById('floatingBoard');
+    if (!b) return;
+    const bw2 = b.offsetWidth;
+    const bh2 = b.offsetHeight;
+    const ew = el.offsetWidth || 160;
+    const eh = el.offsetHeight || 60;
+    px += vx;
+    py += vy;
+    if (px < 0) { px = 0; vx *= -1; }
+    if (px > bw2 - ew) { px = bw2 - ew; vx *= -1; }
+    if (py < 0) { py = 0; vy *= -1; }
+    if (py > bh2 - eh) { py = bh2 - eh; vy *= -1; }
+    el.style.left = px + 'px';
+    el.style.top = py + 'px';
+    requestAnimationFrame(drift);
+  }
+
+  board.appendChild(el);
+
+  // Set board height based on number of messages
+  const count = board.children.length;
+  board.style.height = Math.max(220, count * 40 + 100) + 'px';
+
+  requestAnimationFrame(drift);
+}
+
+async function loadMessages() {
+  try {
+    const res = await fetch(`${SB_URL}/rest/v1/messages?is_public=eq.true&order=created_at.desc&limit=20`, {headers: SB_H});
+    const msgs = await res.json();
+    msgs.forEach(m => createFloatingMsg(m));
+  } catch(e) {}
+}
+
+async function sendMessage(isPublic) {
+  const text = document.getElementById('msgText').value.trim();
+  const region = document.getElementById('msgRegion').value;
+  const status = document.getElementById('msgStatus');
+  if (!text) { status.textContent = 'Please write something.'; return; }
+  status.textContent = 'Sending...';
+  try {
+    const res = await fetch(`${SB_URL}/rest/v1/messages`, {
+      method: 'POST',
+      headers: {...SB_H, 'Prefer': 'return=minimal'},
+      body: JSON.stringify({content: text, region: region||null, is_public: isPublic})
+    });
+    if (res.ok) {
+      status.textContent = isPublic ? 'Posted! You can see it floating above.' : 'Sent privately. Only Xiao Hui will see it.';
+      document.getElementById('msgText').value = '';
+      if (isPublic) loadMessages();
+      setTimeout(() => status.textContent = '', 4000);
+    } else {
+      status.textContent = 'Failed to send.';
+    }
+  } catch(e) {
+    status.textContent = 'Error.';
+  }
+}
+
+loadMessages();
+</script>
+  
 <script>
 const SUPABASE_URL='https://locehayfyfwpdyrabiqm.supabase.co';
 const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxvY2VoYXlmeWZ3cGR5cmFiaXFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0MTQzMTcsImV4cCI6MjA5Mzk5MDMxN30.RKAUOEWE5xFl1z57Q0QN9_sIiirTGsSMVLmgygxUL4M';

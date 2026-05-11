@@ -492,10 +492,10 @@ function createFloatingMsg(msg){
   el.innerHTML=`${nickname}<div>${msg.content}</div>`;
   const x=Math.random()*(bw-200);
   el.style.left=Math.max(0,x)+'px';
-  el.style.top=Math.random()*100+'px';
+  el.style.top=Math.random()*200+'px';
   el.style.transform=`rotate(${(Math.random()-0.5)*6}deg)`;
-  let vx=(Math.random()-0.5)*0.4;
-  let vy=(Math.random()-0.5)*0.4;
+  let vx=(Math.random()-0.5)*1.2;
+  let vy=(Math.random()-0.5)*1.2;
   let px=parseFloat(el.style.left);
   let py=parseFloat(el.style.top);
 
@@ -532,6 +532,7 @@ function createFloatingMsg(msg){
     const origX=px;
     const origY=py;
     function onMove(ev){
+      if(ev.touches)ev.preventDefault();
       const cx=ev.touches?ev.touches[0].clientX:ev.clientX;
       const cy=ev.touches?ev.touches[0].clientY:ev.clientY;
       px=origX+(cx-startX);
@@ -549,7 +550,7 @@ function createFloatingMsg(msg){
     }
     document.addEventListener('mousemove',onMove);
     document.addEventListener('mouseup',onUp);
-    document.addEventListener('touchmove',onMove,{passive:true});
+    document.addEventListener('touchmove',onMove,{passive:false});
     document.addEventListener('touchend',onUp);
   }
 

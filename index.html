@@ -487,15 +487,15 @@ function createFloatingMsg(msg){
   const board=document.getElementById('floatingBoard');
   const bw=board.offsetWidth||600;
   const el=document.createElement('div');
-  el.style.cssText='position:absolute;background:#fff;border:1px solid #000;padding:0.5rem 0.75rem;font-family:\'Syne\',sans-serif;font-size:11px;line-height:1.6;max-width:180px;cursor:default;user-select:none;';
+  el.style.cssText='position:absolute;background:#fff;border:1px solid #000;padding:0.5rem 0.75rem;font-family:\'Syne\',sans-serif;font-size:11px;line-height:1.6;max-width:180px;cursor:default;user-select:none;box-shadow:2px 2px 0 #000;';
   const nickname=msg.region?`<div style="font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:#aaa;margin-bottom:3px;">${msg.region}</div>`:'';
   el.innerHTML=`${nickname}<div>${msg.content}</div>`;
   const x=Math.random()*(bw-200);
   el.style.left=Math.max(0,x)+'px';
   el.style.top=Math.random()*200+'px';
   el.style.transform=`rotate(${(Math.random()-0.5)*6}deg)`;
-  let vx=(Math.random()-0.5)*1.2;
-  let vy=(Math.random()-0.5)*1.2;
+  let vx=(Math.random()-0.5)*0.8;
+  let vy=(Math.random()-0.5)*0.8;
   let px=parseFloat(el.style.left);
   let py=parseFloat(el.style.top);
 

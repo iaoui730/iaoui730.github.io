@@ -79,12 +79,53 @@ nav { position: fixed; top: 0; left: 0; right: 0; display: flex; justify-content
 </head>
 <body>
 
-<div class="login-wrap" id="loginWrap">
-  <div class="login-title">Admin Access</div>
-  <input class="login-input" type="password" id="pwInput" placeholder="Password" onkeydown="if(event.key==='Enter')checkPw()">
-  <button class="login-btn" onclick="checkPw()">Enter</button>
-  <div class="login-error" id="loginError"></div>
-</div>
+const EMOJIS = ['🎞','🌙','📷','🎵','🏙','🌿','⛩','🎬','✦'];
+const EMOJI_PASSWORD = '🎞🌙';
+let emojiInput = '';
+
+function buildEmojiGrid() {
+  const grid = document.getElementById('emojiGrid');
+  EMOJIS.forEach(e => {
+    const btn = document.createElement('button');
+    btn.textContent = e;
+    btn.style.cssText = 'font-size:28px;background:none;border:1px solid #eee;padding:0.6rem;cursor:pointer;border-radius:0;transition:border-color 0.15s;';
+    btn.onmouseenter = () => btn.style.borderColor = '#000';
+    btn.onmouseleave = () => btn.style.borderColor = '#eee';
+    btn.onclick = () => selectEmoji(e);
+    grid.appendChild(btn);
+  });
+}
+
+function selectEmoji(e) {
+  if (emojiInput.length >= 2) return;
+  emojiInput += e;
+  const display = document.getElementById('emojiSelected');
+  display.textContent = emojiInput.length === 1 ? emojiInput + ' _' : emojiInput;
+  if (emojiInput.length === 2) {
+    setTimeout(() => checkEmoji(), 300);
+  }
+}
+
+function clearEmoji() {
+  emojiInput = '';
+  document.getElementById('emojiSelected').textContent = '_ _';
+  document.getElementById('loginError').textContent = '';
+}
+
+function checkEmoji() {
+  if (emojiInput === EMOJI_PASSWORD) {
+    document.getElementById('loginWrap').style.display='none';
+    document.getElementById('adminWrap').style.display='block';
+    loadEntries();loadComments();loadMessages();loadVisits();
+  } else {
+    document.getElementById('loginError').textContent='Wrong password';
+    setTimeout(() => clearEmoji(), 800);
+  }
+}
+
+function checkPw() {}
+
+buildEmojiGrid();
 
 <div class="admin-wrap" id="adminWrap">
   <nav>

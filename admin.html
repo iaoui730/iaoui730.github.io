@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Xiao Hui</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #fff; color: #000; font-family: 'Syne', sans-serif; font-size: 13px; }
+
+.login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 1rem; }
+.login-title { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: #aaa; margin-bottom: 1rem; }
+.login-error { font-size: 11px; color: #c00; letter-spacing: 0.1em; text-transform: uppercase; min-height: 16px; }
+
+.admin-wrap { display: none; }
+nav { position: fixed; top: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: center; padding: 0 2rem; height: 48px; border-bottom: 1px solid #000; background: #fff; z-index: 99; }
+.nav-logo { font-weight: 800; font-size: 13px; letter-spacing: 0.15em; text-transform: uppercase; color: #000; }
+.nav-right { display: flex; gap: 2rem; align-items: center; }
+.nav-btn { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: #000; text-decoration: none; font-weight: 400; cursor: pointer; background: none; border: none; font-family: 'Syne', sans-serif; }
+.nav-btn:hover { opacity: 0.4; }
+
+.tabs { margin-top: 48px; display: flex; border-bottom: 1px solid #000; overflow-x: auto; }
+.tab { flex-shrink: 0; padding: 1rem 2rem; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer; border-right: 1px solid #eee; transition: background 0.15s; }
+.tab:hover { background: #f8f8f8; }
+.tab.active { background: #f8f8f8; font-weight: 700; }
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* Dashboard */
+.dashboard { padding: 2rem; }
+.dash-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: #000; border: 1px solid #000; margin-bottom: 2rem; }
+.dash-card { background: #fff; padding: 2rem; }
+.dash-card-label { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #aaa; margin-bottom: 0.5rem; }
+.dash-card-num { font-size: 48px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
+.dash-card-sub { font-size: 11px; color: #aaa; margin-top: 0.4rem; }
+
+.dash-section { margin-bottom: 2rem; }
+.dash-section-title { font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase; color: #aaa; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid #eee; }
+.dash-region-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid #f5f5f5; font-size: 12px; }
+.dash-region-row:last-child { border-bottom: none; }
+.dash-region-bar { height: 3px; background: #000; margin-top: 3px; transition: width 0.5s ease; }
+.dash-msg-item { padding: 0.75rem 0; border-bottom: 1px solid #f5f5f5; font-size: 12px; color: #333; line-height: 1.6; }
+.dash-msg-item:last-child { border-bottom: none; }
+.dash-msg-meta { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #bbb; margin-bottom: 3px; }
+
+/* Write panel */
+.write-panel { max-width: 680px; margin: 0 auto; padding: 2rem; display: flex; flex-direction: column; gap: 1rem; }
+.write-label { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #aaa; margin-bottom: 0.4rem; }
+.write-input { width: 100%; border: 1px solid #eee; padding: 0.75rem 1rem; font-family: 'Syne', sans-serif; font-size: 14px; outline: none; }
+.write-input:focus { border-color: #000; }
+.write-textarea { width: 100%; border: 1px solid #eee; padding: 0.75rem 1rem; font-family: 'Syne', sans-serif; font-size: 14px; outline: none; resize: vertical; min-height: 300px; line-height: 2; }
+.write-textarea:focus { border-color: #000; }
+.write-btn { background: #000; color: #fff; border: none; padding: 0.75rem 1.5rem; font-family: 'Syne', sans-serif; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer; }
+.write-btn:hover { background: #333; }
+.write-status { font-size: 11px; color: #aaa; }
+
+.list-panel { padding: 2rem; }
+.entry-item { padding: 1.5rem 0; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: flex-start; gap: 2rem; }
+.entry-item:last-child { border-bottom: none; }
+.entry-item-info { flex: 1; }
+.entry-item-date { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: #bbb; margin-bottom: 0.3rem; }
+.entry-item-title { font-size: 16px; font-weight: 700; margin-bottom: 0.4rem; }
+.entry-item-preview { font-size: 12px; color: #777; line-height: 1.7; }
+.action-btn { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; background: none; border: none; font-family: 'Syne', sans-serif; color: #aaa; flex-shrink: 0; }
+.action-btn:hover { color: #c00; }
+
+.comments-panel { padding: 2rem; }
+.comment-item { padding: 1.2rem 0; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: flex-start; gap: 2rem; }
+.comment-item:last-child { border-bottom: none; }
+.comment-info { flex: 1; }
+.comment-meta { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #bbb; margin-bottom: 0.3rem; display: flex; gap: 1rem; flex-wrap: wrap; }
+.comment-text { font-size: 13px; color: #333; line-height: 1.7; }
+.comment-journal { font-size: 10px; color: #aaa; margin-top: 0.3rem; }
+
+.msg-badge { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.15rem 0.4rem; border: 1px solid; display: inline-block; }
+.msg-badge.public { color: #000; border-color: #000; }
+.msg-badge.private { color: #aaa; border-color: #ccc; }
+
+.filter-bar { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.filter-btn { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; padding: 0.4rem 0.8rem; cursor: pointer; background: none; border: 1px solid #eee; font-family: 'Syne', sans-serif; color: #aaa; }
+.filter-btn.active { border-color: #000; color: #000; }
+
+.visit-item { padding: 1rem 0; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; gap: 2rem; }
+.visit-item:last-child { border-bottom: none; }
+.visit-location { font-size: 13px; font-weight: 700; }
+.visit-time { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #bbb; }
+
+.empty { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: #ccc; padding: 2rem 0; }
+
+@media (max-width: 600px) {
+  .dash-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="login-wrap" id="loginWrap">
+  <div class="login-title">Admin Access</div>
+  <div id="emojiSelected" style="font-size:36px;letter-spacing:0.5rem;min-height:52px;margin-bottom:1rem;text-align:center;">_ _</div>
+  <div id="emojiGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;max-width:220px;margin-bottom:1rem;"></div>
+  <button style="width:220px;background:none;border:1px solid #eee;padding:0.6rem;font-family:'Syne',sans-serif;font-size:11px;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;color:#aaa;" onclick="clearEmoji()">Clear</button>
+  <div class="login-error" id="loginError"></div>
+</div>
+
+<div class="admin-wrap" id="adminWrap">
+  <nav>
+    <div class="nav-logo">Admin</div>
+    <div class="nav-right">
+      <a class="nav-btn" href="journal.html" target="_blank">Journal</a>
+      <a class="nav-btn" href="index.html" target="_blank">Site</a>
+      <button class="nav-btn" onclick="logout()">Logout</button>
+    </div>
+  </nav>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('dashboard')">Dashboard</div>
+    <div class="tab" onclick="switchTab('entries')">Entries</div>
+    <div class="tab" onclick="switchTab('comments')">Comments</div>
+    <div class="tab" onclick="switchTab('messages')">Messages</div>
+    <div class="tab" onclick="switchTab('visits')">Visits</div>
+    <div class="tab" onclick="switchTab('write')">Write</div>
+  </div>
+
+  <div class="tab-content active" id="tab-dashboard">
+    <div class="dashboard">
+      <div class="dash-grid">
+        <div class="dash-card">
+          <div class="dash-card-label">Today's Visits</div>
+          <div class="dash-card-num" id="todayVisits">—</div>
+          <div class="dash-card-sub">unique visitors today</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-label">Total Visits</div>
+          <div class="dash-card-num" id="totalVisits">—</div>
+          <div class="dash-card-sub">all time</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-label">Today's Messages</div>
+          <div class="dash-card-num" id="todayMessages">—</div>
+          <div class="dash-card-sub">public + private</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-label">Total Messages</div>
+          <div class="dash-card-num" id="totalMessages">—</div>
+          <div class="dash-card-sub">all time</div>
+        </div>
+      </div>
+
+      <div class="dash-section">
+        <div class="dash-section-title">Today's Visitors by Region</div>
+        <div id="todayRegions"><div class="empty">Loading...</div></div>
+      </div>
+
+      <div class="dash-section">
+        <div class="dash-section-title">Latest Messages Today</div>
+        <div id="todayMsgList"><div class="empty">Loading...</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-entries">
+    <div class="list-panel" id="entriesList"><div class="empty">Loading...</div></div>
+  </div>
+
+  <div class="tab-content" id="tab-comments">
+    <div class="comments-panel" id="commentsList"><div class="empty">Loading...</div></div>
+  </div>
+
+  <div class="tab-content" id="tab-messages">
+    <div class="list-panel">
+      <div class="filter-bar">
+        <button class="filter-btn active" onclick="filterMessages('all', this)">All</button>
+        <button class="filter-btn" onclick="filterMessages('public', this)">Public</button>
+        <button class="filter-btn" onclick="filterMessages('private', this)">Private</button>
+      </div>
+      <div id="messagesList"><div class="empty">Loading...</div></div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-visits">
+    <div class="list-panel">
+      <div id="visitsList"><div class="empty">Loading...</div></div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-write">
+    <div class="write-panel">
+      <div>
+        <div class="write-label">Title (optional)</div>
+        <input class="write-input" type="text" id="entryTitle" placeholder="Title...">
+      </div>
+      <div>
+        <div class="write-label">Content</div>
+        <textarea class="write-textarea" id="entryContent" placeholder="Write something..."></textarea>
+      </div>
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <button class="write-btn" onclick="publish()">Publish</button>
+        <div class="write-status" id="writeStatus"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL='https://locehayfyfwpdyrabiqm.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxvY2VoYXlmeWZ3cGR5cmFiaXFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0MTQzMTcsImV4cCI6MjA5Mzk5MDMxN30.RKAUOEWE5xFl1z57Q0QN9_sIiirTGsSMVLmgygxUL4M';
+const HEADERS={'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY};
+
+const EMOJIS=['🎞','🌙','📷','🎵','🏙','🌿','⛩','🎬','✦'];
+const EMOJI_PASSWORD='🎞🌙';
+let emojiInput='';
+
+const REGIONS={
+  'asia-pacific':'Asia Pacific','europe':'Europe','north-america':'North America',
+  'latin-america':'Latin America','mea':'Middle East & Africa','other':'Other'
+};
+
+let allMessages=[];
+let currentFilter='all';
+
+function buildEmojiGrid(){
+  const grid=document.getElementById('emojiGrid');
+  EMOJIS.forEach(e=>{
+    const btn=document.createElement('button');
+    btn.textContent=e;
+    btn.style.cssText='font-size:28px;background:none;border:1px solid #eee;padding:0.6rem;cursor:pointer;border-radius:0;transition:border-color 0.15s;';
+    btn.onmouseenter=()=>btn.style.borderColor='#000';
+    btn.onmouseleave=()=>btn.style.borderColor='#eee';
+    btn.onclick=()=>selectEmoji(e);
+    grid.appendChild(btn);
+  });
+}
+
+function selectEmoji(e){
+  if(emojiInput.length>=2)return;
+  emojiInput+=e;
+  const display=document.getElementById('emojiSelected');
+  display.textContent=emojiInput.length===1?emojiInput+' _':emojiInput;
+  if(emojiInput.length===2)setTimeout(()=>checkEmoji(),300);
+}
+
+function clearEmoji(){
+  emojiInput='';
+  document.getElementById('emojiSelected').textContent='_ _';
+  document.getElementById('loginError').textContent='';
+}
+
+function checkEmoji(){
+  if(emojiInput===EMOJI_PASSWORD){
+    document.getElementById('loginWrap').style.display='none';
+    document.getElementById('adminWrap').style.display='block';
+    loadDashboard();loadEntries();loadComments();loadMessages();loadVisits();
+  }else{
+    document.getElementById('loginError').textContent='Wrong password';
+    setTimeout(()=>clearEmoji(),800);
+  }
+}
+
+function logout(){
+  document.getElementById('loginWrap').style.display='flex';
+  document.getElementById('adminWrap').style.display='none';
+  emojiInput='';
+  document.getElementById('emojiSelected').textContent='_ _';
+}
+
+function switchTab(name){
+  const tabs=['dashboard','entries','comments','messages','visits','write'];
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',tabs[i]===name));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+}
+
+function isToday(dateStr){
+  const d=new Date(dateStr);
+  const now=new Date();
+  return d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth()&&d.getDate()===now.getDate();
+}
+
+async function loadDashboard(){
+  try{
+    // Visits
+    const vRes=await fetch(`${SUPABASE_URL}/rest/v1/visits?select=*&order=created_at.desc`,{headers:HEADERS});
+    const visits=await vRes.json();
+    const todayV=visits.filter(v=>isToday(v.created_at));
+    document.getElementById('totalVisits').textContent=visits.length;
+    document.getElementById('todayVisits').textContent=todayV.length;
+
+    // Today regions
+    const regionCount={};
+    todayV.forEach(v=>{
+      const r=v.country||'Unknown';
+      regionCount[r]=(regionCount[r]||0)+1;
+    });
+    const regionEl=document.getElementById('todayRegions');
+    const sorted=Object.entries(regionCount).sort((a,b)=>b[1]-a[1]);
+    const max=sorted[0]?sorted[0][1]:1;
+    if(!sorted.length){regionEl.innerHTML='<div class="empty">No visits today.</div>';}
+    else{
+      regionEl.innerHTML=sorted.map(([r,c])=>`
+        <div class="dash-region-row">
+          <div>
+            <div>${r}</div>
+            <div class="dash-region-bar" style="width:${Math.round(c/max*100)}%"></div>
+          </div>
+          <div style="font-weight:700;">${c}</div>
+        </div>
+      `).join('');
+    }
+
+    // Messages
+    const mRes=await fetch(`${SUPABASE_URL}/rest/v1/messages?select=*&order=created_at.desc`,{headers:HEADERS});
+    const msgs=await mRes.json();
+    const todayM=msgs.filter(m=>isToday(m.created_at));
+    document.getElementById('totalMessages').textContent=msgs.length;
+    document.getElementById('todayMessages').textContent=todayM.length;
+
+    const msgEl=document.getElementById('todayMsgList');
+    if(!todayM.length){msgEl.innerHTML='<div class="empty">No messages today.</div>';}
+    else{
+      msgEl.innerHTML=todayM.slice(0,10).map(m=>`
+        <div class="dash-msg-item">
+          <div class="dash-msg-meta">${m.region||'Anonymous'} · ${m.is_public?'Public':'Private'}</div>
+          <div>${m.content.replace(/</g,'&lt;')}</div>
+        </div>
+      `).join('');
+    }
+  }catch(e){console.error(e);}
+}
+
+async function publish(){
+  const title=document.getElementById('entryTitle').value.trim();
+  const content=document.getElementById('entryContent').value.trim();
+  const status=document.getElementById('writeStatus');
+  if(!content){status.textContent='Content cannot be empty.';return;}
+  status.textContent='Publishing...';
+  try{
+    const res=await fetch(`${SUPABASE_URL}/rest/v1/journal`,{
+      method:'POST',headers:{...HEADERS,'Prefer':'return=minimal'},
+      body:JSON.stringify({title,content})
+    });
+    if(res.ok){
+      status.textContent='Published!';
+      document.getElementById('entryTitle').value='';
+      document.getElementById('entryContent').value='';
+      loadEntries();
+      setTimeout(()=>status.textContent='',3000);
+    }else{status.textContent='Failed.';}
+  }catch(e){status.textContent='Error.';}
+}
+
+async function deleteEntry(id){
+  if(!confirm('Delete this entry and all its comments?'))return;
+  await fetch(`${SUPABASE_URL}/rest/v1/journal?id=eq.${id}`,{method:'DELETE',headers:HEADERS});
+  loadEntries();loadComments();
+}
+
+async function deleteComment(id){
+  if(!confirm('Delete this comment?'))return;
+  await fetch(`${SUPABASE_URL}/rest/v1/comments?id=eq.${id}`,{method:'DELETE',headers:HEADERS});
+  loadComments();
+}
+
+async function deleteMessage(id){
+  if(!confirm('Delete this message?'))return;
+  await fetch(`${SUPABASE_URL}/rest/v1/messages?id=eq.${id}`,{method:'DELETE',headers:HEADERS});
+  loadMessages();
+}
+
+async function loadEntries(){
+  const list=document.getElementById('entriesList');
+  try{
+    const res=await fetch(`${SUPABASE_URL}/rest/v1/journal?select=*&order=created_at.desc`,{headers:HEADERS});
+    const entries=await res.json();
+    if(!entries.length){list.innerHTML='<div class="empty">No entries yet.</div>';return;}
+    list.innerHTML=entries.map(e=>`
+      <div class="entry-item">
+        <div class="entry-item-info">
+          <div class="entry-item-date">${new Date(e.created_at).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}</div>
+          ${e.title?`<div class="entry-item-title">${e.title}</div>`:''}
+          <div class="entry-item-preview">${e.content.slice(0,120)}${e.content.length>120?'...':''}</div>
+        </div>
+        <button class="action-btn" onclick="deleteEntry(${e.id})">Delete</button>
+      </div>
+    `).join('');
+  }catch(e){list.innerHTML='<div class="empty">Failed to load.</div>';}
+}
+
+async function loadComments(){
+  const list=document.getElementById('commentsList');
+  try{
+    const res=await fetch(`${SUPABASE_URL}/rest/v1/comments?select=*,journal(title)&order=created_at.desc`,{headers:HEADERS});
+    const comments=await res.json();
+    if(!comments.length){list.innerHTML='<div class="empty">No comments yet.</div>';return;}
+    list.innerHTML=comments.map(c=>`
+      <div class="comment-item">
+        <div class="comment-info">
+          <div class="comment-meta">
+            <span>${new Date(c.created_at).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}</span>
+            ${c.region?`<span>${REGIONS[c.region]||c.region}</span>`:''}
+          </div>
+          <div class="comment-text">${c.content.replace(/</g,'&lt;')}</div>
+          ${c.journal?.title?`<div class="comment-journal">On: ${c.journal.title}</div>`:''}
+        </div>
+        <button class="action-btn" onclick="deleteComment(${c.id})">Delete</button>
+      </div>
+    `).join('');
+  }catch(e){list.innerHTML='<div class="empty">Failed to load.</div>';}
+}
+
+async function loadMessages(){
+  const list=document.getElementById('messagesList');
+  try{
+    const res=await fetch(`${SUPABASE_URL}/rest/v1/messages?select=*&order=created_at.desc`,{headers:HEADERS});
+    allMessages=await res.json();
+    renderMessages();
+  }catch(e){list.innerHTML='<div class="empty">Failed to load.</div>';}
+}
+
+function filterMessages(filter,btn){
+  currentFilter=filter;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderMessages();
+}
+
+function renderMessages(){
+  const list=document.getElementById('messagesList');
+  const filtered=currentFilter==='all'?allMessages:
+    allMessages.filter(m=>currentFilter==='public'?m.is_public:!m.is_public);
+  if(!filtered.length){list.innerHTML='<div class="empty">No messages.</div>';return;}
+  list.innerHTML=filtered.map(m=>`
+    <div class="comment-item">
+      <div class="comment-info">
+        <div class="comment-meta">
+          <span>${new Date(m.created_at).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}</span>
+          ${m.region?`<span>${m.region}</span>`:''}
+          <span class="msg-badge ${m.is_public?'public':'private'}">${m.is_public?'Public':'Private'}</span>
+        </div>
+        <div class="comment-text">${m.content.replace(/</g,'&lt;')}</div>
+      </div>
+      <button class="action-btn" onclick="deleteMessage(${m.id})">Delete</button>
+    </div>
+  `).join('');
+}
+
+async function loadVisits(){
+  const list=document.getElementById('visitsList');
+  try{
+    const res=await fetch(`${SUPABASE_URL}/rest/v1/visits?select=*&order=created_at.desc`,{headers:HEADERS});
+    const visits=await res.json();
+    if(!visits.length){list.innerHTML='<div class="empty">No visits yet.</div>';return;}
+    list.innerHTML=visits.map(v=>`
+      <div class="visit-item">
+        <div>
+          <div class="visit-location">${v.city?v.city+', ':''}${v.country||'Unknown'}</div>
+          ${v.ip?`<div style="font-size:10px;color:#bbb;margin-top:2px;">${v.ip}</div>`:''}
+        </div>
+        <div class="visit-time">${new Date(v.created_at).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
+      </div>
+    `).join('');
+  }catch(e){list.innerHTML='<div class="empty">Failed to load.</div>';}
+}
+
+buildEmojiGrid();
+</script>
+</body>
+</html>

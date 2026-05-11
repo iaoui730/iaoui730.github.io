@@ -305,7 +305,7 @@ async function loadVisits(){
   const list=document.getElementById('visitsList');
   const total=document.getElementById('visitTotal');
   try{
-    const res=await fetch(`${SUPABASE_URL}/rest/v1/visits?select=*&order=created_at.desc&limit=100`,{headers:HEADERS});
+    const res=await fetch(`${SUPABASE_URL}/rest/v1/visits?select=*&order=created_at.desc&limit=1000`,{headers:HEADERS});
     const visits=await res.json();
     total.textContent=visits.length;
     if(!visits.length){list.innerHTML='<div class="empty">No visits yet.</div>';return;}

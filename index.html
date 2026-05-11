@@ -223,7 +223,7 @@ IAOUI</div>
   <div class="section-header-count">004 Series</div>
 </div>
 <div id="floatBtn" style="position:fixed;bottom:2rem;right:2rem;z-index:50;width:80px;height:80px;background:#ADFF2F;border-radius:50%;cursor:grab;display:flex;align-items:center;justify-content:center;box-shadow:2px 2px 0 #000;transition:width 0.3s ease,height 0.3s ease;" onclick="toggleFloat()">
-  <span id="floatText" style="font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;text-align:center;line-height:1.3;padding:0.5rem;display:none;">这部分还有点卡可以不看</span>
+  <span id="floatText" style="font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;text-align:center;line-height:1.3;padding:0.5rem;display:none;">最下面可以留言</span>
 </div>
 
 <script>
@@ -487,7 +487,7 @@ function createFloatingMsg(msg){
   const board=document.getElementById('floatingBoard');
   const bw=board.offsetWidth||600;
   const el=document.createElement('div');
-  el.style.cssText='position:absolute;background:#fff;border:1px solid #000;padding:0.5rem 0.75rem;font-family:\'Syne\',sans-serif;font-size:11px;line-height:1.6;max-width:180px;cursor:default;user-select:none;box-shadow:2px 2px 0 #000;';
+  el.style.cssText='position:absolute;background:#fff;border:1px solid #000;padding:0.5rem 0.75rem;font-family:\'Syne\',sans-serif;font-size:11px;line-height:1.6;max-width:180px;cursor:default;user-select:none;';
   const nickname=msg.region?`<div style="font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:#aaa;margin-bottom:3px;">${msg.region}</div>`:'';
   el.innerHTML=`${nickname}<div>${msg.content}</div>`;
   const x=Math.random()*(bw-200);

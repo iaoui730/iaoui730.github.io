@@ -392,14 +392,48 @@ function createFloatingMsg(msg){
     el.style.top=py+'px';
     requestAnimationFrame(drift);
   }
-el.style.transition = 'transform 0.2s ease';
-el.onclick = () => {
+el.style.transition = 'transform 0.15s ease';
+el.style.cursor = 'grab';
+
+el.addEventListener('mousedown', startDrag);
+el.addEventListener('touchstart', startDrag, {passive: true});
+
+function startDrag(e) {
   el.style.zIndex = Date.now();
-  el.style.transform = `rotate(${(Math.random()-0.5)*6}deg) scale(1.08)`;
-  setTimeout(() => {
+  el.style.cursor = 'grabbing';
+  el.style.transform = `rotate(${(Math.random()-0.5)*6}deg) scale(1.06)`;
+  vx = 0; vy = 0;
+
+  const isTouch = e.touches;
+  const startX = isTouch ? e.touches[0].clientX : e.clientX;
+  const startY = isTouch ? e.touches[0].clientY : e.clientY;
+  const origX = px;
+  const origY = py;
+
+  function onMove(ev) {
+    const cx = ev.touches ? ev.touches[0].clientX : ev.clientX;
+    const cy = ev.touches ? ev.touches[0].clientY : ev.clientY;
+    px = origX + (cx - startX);
+    py = origY + (cy - startY);
+    el.style.left = px + 'px';
+    el.style.top = py + 'px';
+  }
+
+  function onUp() {
+    el.style.cursor = 'grab';
     el.style.transform = `rotate(${(Math.random()-0.5)*6}deg) scale(1)`;
-  }, 200);
-};
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+    document.removeEventListener('touchmove', onMove);
+    document.removeEventListener('touchend', onUp);
+  }
+
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
+  document.addEventListener('touchmove', onMove, {passive: true});
+  document.addEventListener('touchend', onUp);
+}
+
 board.appendChild(el);
   const count=board.children.length;
   board.style.height=Math.max(220,count*40+100)+'px';

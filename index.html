@@ -392,7 +392,15 @@ function createFloatingMsg(msg){
     el.style.top=py+'px';
     requestAnimationFrame(drift);
   }
-  board.appendChild(el);
+el.style.transition = 'transform 0.2s ease';
+el.onclick = () => {
+  el.style.zIndex = Date.now();
+  el.style.transform = `rotate(${(Math.random()-0.5)*6}deg) scale(1.08)`;
+  setTimeout(() => {
+    el.style.transform = `rotate(${(Math.random()-0.5)*6}deg) scale(1)`;
+  }, 200);
+};
+board.appendChild(el);
   const count=board.children.length;
   board.style.height=Math.max(220,count*40+100)+'px';
   requestAnimationFrame(drift);
